@@ -1,0 +1,64 @@
+[
+  {
+    "image": "upload_20260605_150739.png",
+    "timestamp": "2026-06-05T15:07:46.252884",
+    "model_used": "easyocr",
+    "processing_time": 6107.65,
+    "detections": [
+      {
+        "text": "КОСМЕТИКА",
+        "confidence": 0.9895224219701565,
+        "bbox": [
+          [
+            275.0,
+            561.0
+          ],
+          [
+            1438.0,
+            561.0
+          ],
+          [
+            1438.0,
+            733.0
+          ],
+          [
+            275.0,
+            733.0
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "image": "upload_20260605_154058.png",
+    "timestamp": "2026-06-05T15:41:04.194457",
+    "model_used": "arch1",
+    "architecture_desc": "CNN+RNN+Attention+BiLSTM - Гибридная",
+    "processing_time": 5953.05,
+    "detections": [
+      {
+        "text": "КОСМЕТИКА",
+        "confidence": 0.9895224219701565,
+        "architecture": "CNN+RNN+Attention+BiLSTM",
+        "strength": "Высокая точность, механизм внимания",
+        "weakness": "Требует много памяти"
+      }
+    ]
+  },
+  {
+    "image": "upload_20260605_160109.png",
+    "timestamp": "2026-06-05T16:01:16.018560",
+    "model_used": "arch1",
+    "architecture_desc": "CNN+RNN+Attention+BiLSTM - Гибридная",
+    "processing_time": 5993.95,
+    "detections": [
+      {
+        "text": "КОСМЕТИКА",
+        "confidence": 0.9895224219701565,
+        "architecture": "CNN+RNN+Attention+BiLSTM",
+        "strength": "Высокая точность, механизм внимания",
+        "weakness": "Требует много памяти"
+      }
+    ]
+  }
+]
