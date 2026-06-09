@@ -16,7 +16,7 @@
 
 ```bash
 # Клонирование репозитория
-git clone https://github.com/ваш-username/ocr-city-signs-recognition.git
+git clone https://github.com/Evgen8825/ocr-city-signs-recognition.git
 cd ocr-city-signs-recognition
 
 # Установка зависимостей
