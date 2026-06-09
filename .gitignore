@@ -1,0 +1,27 @@
+# Создать файл .gitignore
+@"
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+
+# Загруженные файлы
+uploads/*.png
+uploads/*.jpg
+uploads/*.jpeg
+!uploads/.gitkeep
+
+# Результаты
+results/*.json
+results/*.csv
+!results/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# Системные
+Thumbs.db
+.DS_Store
+"@ | Out-File -FilePath .gitignore -Encoding utf8

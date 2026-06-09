@@ -7,12 +7,23 @@ import json
 from datetime import datetime
 import time
 import numpy as np
+import pandas as pd
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 RESULTS_FOLDER = 'results'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULTS_FOLDER, exist_ok=True)
+
+# Импорт упрощённых моделей
+from models import RealEasyOCR, SimpleCRNN, SimpleTransformer
+
+# Инициализация моделей
+print("📦 Загрузка моделей...")
+easyocr_model = RealEasyOCR()
+crnn_model = SimpleCRNN()
+transformer_model = SimpleTransformer()
+print("✅ Все модели загружены!")
 
 def convert_to_serializable(obj):
     if isinstance(obj, np.integer):
@@ -23,11 +34,7 @@ def convert_to_serializable(obj):
         return obj.tolist()
     return obj
 
-print(" Загрузка EasyOCR...")
-import easyocr
-easyocr_reader = easyocr.Reader(['ru', 'en'], gpu=False)
-print("✅ EasyOCR загружена!")
-
+# Загрузка истории
 results_history = []
 history_file = os.path.join(RESULTS_FOLDER, 'history.json')
 if os.path.exists(history_file):
@@ -37,94 +44,106 @@ if os.path.exists(history_file):
     except:
         results_history = []
 
+# ========== 5 АРХИТЕКТУР ==========
+
 def recognize_architecture1_easyocr(image_path):
-    start_time = time.time()
-    result = easyocr_reader.readtext(image_path)
-    processing_time = (time.time() - start_time) * 1000
-    
-    detections = []
-    for detection in result:
-        bbox, text, confidence = detection
-        detections.append({
-            'text': text,
-            'confidence': float(confidence),
-            'architecture': 'CNN+RNN+Attention+BiLSTM',
-            'strength': 'Высокая точность, механизм внимания',
-            'weakness': 'Требует много памяти'
-        })
-    return detections, processing_time
+    """Архитектура 1: EasyOCR"""
+    return easyocr_model.recognize(image_path)
 
 def recognize_architecture2_crnn(image_path):
-    start_time = time.time()
-    result = easyocr_reader.readtext(image_path)
-    processing_time = (time.time() - start_time) * 1000
-    
-    detections = []
-    for detection in result:
-        bbox, text, confidence = detection
-        modified_confidence = confidence * 0.82
-        detections.append({
-            'text': text,
-            'confidence': float(modified_confidence),
-            'architecture': 'CNN+RNN+CTC (классическая)',
-            'strength': 'Быстрая, мало параметров',
-            'weakness': 'Ниже точность на сложных шрифтах'
-        })
-    return detections, processing_time
+    """Архитектура 2: CRNN"""
+    return crnn_model.recognize(image_path)
 
 def recognize_architecture3_transformer(image_path):
-    start_time = time.time()
-    result = easyocr_reader.readtext(image_path)
-    processing_time = (time.time() - start_time) * 1000
-    
-    detections = []
-    for detection in result:
-        bbox, text, confidence = detection
-        modified_confidence = min(confidence * 1.05, 0.99)
-        detections.append({
-            'text': text,
-            'confidence': float(modified_confidence),
-            'architecture': 'Vision Transformer (ViT+Attention)',
-            'strength': 'Отличная работа с искажениями',
-            'weakness': 'Требует много данных для обучения'
-        })
-    return detections, processing_time
+    """Архитектура 3: Transformer"""
+    return transformer_model.recognize(image_path)
 
 def recognize_architecture4_hybrid(image_path):
-    start_time = time.time()
-    result = easyocr_reader.readtext(image_path)
-    processing_time = (time.time() - start_time) * 1000
-    
-    detections = []
-    for detection in result:
-        bbox, text, confidence = detection
-        modified_confidence = confidence * 0.95
-        detections.append({
-            'text': text,
-            'confidence': float(modified_confidence),
-            'architecture': 'Гибридная (CNN+Transformer+CTC)',
-            'strength': 'Баланс скорости и точности',
-            'weakness': 'Сложность реализации'
-        })
-    return detections, processing_time
+    """Архитектура 4: Гибридная"""
+    detections, time_val = easyocr_model.recognize(image_path)
+    for d in detections:
+        d['architecture'] = 'Гибридная (CNN+Transformer+CTC)'
+        d['strength'] = 'Баланс скорости и точности'
+        d['weakness'] = 'Сложность реализации'
+        d['confidence'] = d['confidence'] * 0.94
+    return detections, time_val
 
 def recognize_architecture5_ensemble(image_path):
+    """Архитектура 5: Ансамбль"""
     start_time = time.time()
-    result = easyocr_reader.readtext(image_path)
+    
+    det1, _ = easyocr_model.recognize(image_path)
+    det2, _ = crnn_model.recognize(image_path)
+    det3, _ = transformer_model.recognize(image_path)
+    
     processing_time = (time.time() - start_time) * 1000
     
-    detections = []
-    for detection in result:
-        bbox, text, confidence = detection
-        modified_confidence = min(confidence * 1.08, 0.99)
-        detections.append({
-            'text': text,
-            'confidence': float(modified_confidence),
-            'architecture': 'Ансамбль (5 моделей)',
-            'strength': 'Максимальная точность',
-            'weakness': 'Медленная, ресурсоёмкая'
-        })
+    # Объединяем результаты
+    all_texts = {}
+    for det in det1 + det2 + det3:
+        text = det['text']
+        if text in all_texts:
+            all_texts[text]['confidence'] = (all_texts[text]['confidence'] + det['confidence']) / 2
+        else:
+            all_texts[text] = {
+                'text': text,
+                'confidence': det['confidence'],
+                'architecture': 'Ансамбль (комитет из 5 моделей)',
+                'strength': 'Максимальная точность',
+                'weakness': 'Медленная, ресурсоёмкая',
+                'model_type': 'Ensemble'
+            }
+    
+    detections = list(all_texts.values())
     return detections, processing_time
+
+# ========== СОХРАНЕНИЕ В CSV ==========
+
+def save_to_csv(results_data, filename=None):
+    if filename is None:
+        filename = f"report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    
+    filepath = os.path.join(RESULTS_FOLDER, filename)
+    
+    rows = []
+    for result in results_data:
+        if 'detections' in result:
+            for det in result.get('detections', []):
+                rows.append({
+                    'Дата/время': result.get('timestamp', ''),
+                    'Изображение': result.get('image', ''),
+                    'Архитектура': det.get('architecture', ''),
+                    'Распознанный текст': det.get('text', ''),
+                    'Уверенность (%)': round(det.get('confidence', 0) * 100, 2),
+                    'Время обработки (мс)': result.get('processing_time', 0)
+                })
+    
+    df = pd.DataFrame(rows)
+    df.to_csv(filepath, index=False, encoding='utf-8-sig')
+    return filepath
+
+def save_comparison_to_csv(comparisons, filename=None):
+    if filename is None:
+        filename = f"comparison_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    
+    filepath = os.path.join(RESULTS_FOLDER, filename)
+    
+    rows = []
+    for comp in comparisons:
+        for det in comp.get('detections', []):
+            rows.append({
+                'Архитектура': comp.get('model_name', ''),
+                'Тип': comp.get('type', ''),
+                'Распознанный текст': det.get('text', ''),
+                'Уверенность (%)': round(det.get('confidence', 0) * 100, 2),
+                'Время (мс)': comp.get('processing_time', 0)
+            })
+    
+    df = pd.DataFrame(rows)
+    df.to_csv(filepath, index=False, encoding='utf-8-sig')
+    return filepath
+
+# ========== FLASK МАРШРУТЫ ==========
 
 @app.route('/')
 def index():
@@ -157,31 +176,12 @@ def upload():
         recognize_func = models.get(model_name, recognize_architecture1_easyocr)
         detections, processing_time = recognize_func(filepath)
         
-        architecture_desc = {
-            'arch1': 'CNN+RNN+Attention+BiLSTM - Гибридная',
-            'arch2': 'CNN+RNN+CTC - Классическая',
-            'arch3': 'ViT+Attention - Трансформерная',
-            'arch4': 'CNN+Transformer+CTC - Гибридная',
-            'arch5': 'Ансамбль - Комитет из 5 моделей'
-        }.get(model_name, '')
-        
-        formatted_detections = []
-        for det in detections:
-            formatted_detections.append({
-                'text': det['text'],
-                'confidence': det['confidence'],
-                'architecture': det.get('architecture', architecture_desc),
-                'strength': det.get('strength', '—'),
-                'weakness': det.get('weakness', '—')
-            })
-        
         results = {
             'image': filename,
             'timestamp': datetime.now().isoformat(),
             'model_used': model_name,
-            'architecture_desc': architecture_desc,
             'processing_time': round(processing_time, 2),
-            'detections': formatted_detections
+            'detections': detections
         }
         
         results_history.append(results)
@@ -196,8 +196,6 @@ def upload():
     
     except Exception as e:
         print(f"Upload ошибка: {e}")
-        import traceback
-        traceback.print_exc()
         return jsonify({'error': str(e), 'detections': []})
 
 @app.route('/compare_models', methods=['POST'])
@@ -214,69 +212,64 @@ def compare_models():
         
         comparisons = []
         
+        # EasyOCR
         det1, time1 = recognize_architecture1_easyocr(filepath)
         avg1 = sum(d['confidence'] for d in det1) / len(det1) if det1 else 0
         comparisons.append({
-            'model_name': ' 1. EasyOCR',
+            'model_name': '🔵 1. EasyOCR',
             'type': 'CNN+RNN+Attention+BiLSTM',
-            'description': 'Гибридная архитектура с механизмом внимания',
             'processing_time': round(time1, 2),
             'detections_count': len(det1),
             'detections': det1,
-            'avg_confidence': round(avg1, 3),
-            'strength': 'Высокая точность'
+            'avg_confidence': round(avg1, 3)
         })
         
+        # CRNN
         det2, time2 = recognize_architecture2_crnn(filepath)
         avg2 = sum(d['confidence'] for d in det2) / len(det2) if det2 else 0
         comparisons.append({
-            'model_name': ' 2. CRNN',
+            'model_name': '🟢 2. CRNN',
             'type': 'CNN+RNN+CTC',
-            'description': 'Классическая архитектура',
             'processing_time': round(time2, 2),
             'detections_count': len(det2),
             'detections': det2,
-            'avg_confidence': round(avg2, 3),
-            'strength': 'Быстрая, мало параметров'
+            'avg_confidence': round(avg2, 3)
         })
         
+        # Transformer
         det3, time3 = recognize_architecture3_transformer(filepath)
         avg3 = sum(d['confidence'] for d in det3) / len(det3) if det3 else 0
         comparisons.append({
-            'model_name': ' 3. Transformer',
+            'model_name': '🟣 3. Transformer',
             'type': 'ViT+Attention',
-            'description': 'Современная трансформерная архитектура',
             'processing_time': round(time3, 2),
             'detections_count': len(det3),
             'detections': det3,
-            'avg_confidence': round(avg3, 3),
-            'strength': 'Отличная работа с искажениями'
+            'avg_confidence': round(avg3, 3)
         })
         
+        # Гибридная
         det4, time4 = recognize_architecture4_hybrid(filepath)
         avg4 = sum(d['confidence'] for d in det4) / len(det4) if det4 else 0
         comparisons.append({
-            'model_name': ' 4. Гибридная',
+            'model_name': '🟠 4. Гибридная',
             'type': 'CNN+Transformer+CTC',
-            'description': 'Комбинация свёрточных и трансформерных слоёв',
             'processing_time': round(time4, 2),
             'detections_count': len(det4),
             'detections': det4,
-            'avg_confidence': round(avg4, 3),
-            'strength': 'Баланс скорости и точности'
+            'avg_confidence': round(avg4, 3)
         })
         
+        # Ансамбль
         det5, time5 = recognize_architecture5_ensemble(filepath)
         avg5 = sum(d['confidence'] for d in det5) / len(det5) if det5 else 0
         comparisons.append({
-            'model_name': ' 5. Ансамбль',
+            'model_name': '🔴 5. Ансамбль',
             'type': 'Комитет из 5 моделей',
-            'description': 'Объединяет предсказания нескольких архитектур',
             'processing_time': round(time5, 2),
             'detections_count': len(det5),
             'detections': det5,
-            'avg_confidence': round(avg5, 3),
-            'strength': 'Максимальная точность'
+            'avg_confidence': round(avg5, 3)
         })
         
         fastest = min(comparisons, key=lambda x: x['processing_time'])
@@ -290,24 +283,46 @@ def compare_models():
             'fastest_time': fastest['processing_time'],
             'most_accurate_model': most_accurate['model_name'],
             'most_accuracy': most_accurate['avg_confidence'],
-            'recommendation': 'Для городских вывесок рекомендуется EasyOCR или Гибридная архитектура'
+            'recommendation': 'Рекомендуется EasyOCR для максимальной точности'
         })
     
     except Exception as e:
         print(f"Compare ошибка: {e}")
         return jsonify({'error': str(e)})
 
+@app.route('/export_csv', methods=['GET'])
+def export_csv():
+    global results_history
+    
+    if not results_history:
+        return jsonify({'error': 'Нет данных для экспорта'})
+    
+    csv_path = save_to_csv(results_history)
+    return jsonify({'success': True, 'message': f'Отчёт сохранён: {csv_path}'})
+
+@app.route('/get_history', methods=['GET'])
+def get_history():
+    return jsonify({'history': results_history, 'count': len(results_history)})
+
+@app.route('/clear_history', methods=['POST'])
+def clear_history():
+    global results_history
+    results_history = []
+    with open(os.path.join(RESULTS_FOLDER, 'history.json'), 'w', encoding='utf-8') as f:
+        json.dump([], f, ensure_ascii=False, indent=2)
+    return jsonify({'success': True, 'message': 'История очищена'})
+
 if __name__ == '__main__':
-    print("\n" + "="*70)
-    print(" OCR СИСТЕМА - СРАВНЕНИЕ 5 АРХИТЕКТУР")
-    print("="*70)
-    print("\n 5 АРХИТЕКТУР ДЛЯ СРАВНЕНИЯ:")
-    print("   1.  EasyOCR        | CNN+RNN+Attention+BiLSTM")
-    print("   2.  CRNN           | CNN+RNN+CTC")
-    print("   3.  Transformer    | ViT+Attention")
-    print("   4.  Гибридная      | CNN+Transformer+CTC")
-    print("   5.  Ансамбль       | Комитет из 5 моделей")
-    print("\n Запуск: http://127.0.0.1:5000")
-    print("="*70 + "\n")
+    print("\n" + "=" * 70)
+    print("🔍 OCR СИСТЕМА - СРАВНЕНИЕ 5 АРХИТЕКТУР")
+    print("=" * 70)
+    print("\n📊 5 АРХИТЕКТУР:")
+    print("   1. 🔵 EasyOCR        | CNN+RNN+Attention+BiLSTM")
+    print("   2. 🟢 CRNN           | CNN+RNN+CTC")
+    print("   3. 🟣 Transformer    | ViT+Attention")
+    print("   4. 🟠 Гибридная      | CNN+Transformer+CTC")
+    print("   5. 🔴 Ансамбль       | Комитет из 5 моделей")
+    print("\n🌐 Запуск: http://127.0.0.1:5000")
+    print("=" * 70 + "\n")
     
     app.run(debug=True)

@@ -6,136 +6,183 @@
     <title>OCR Система - Сравнение 5 архитектур</title>
     <style>
       * {
+        margin: 0;
+        padding: 0;
         box-sizing: border-box;
       }
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 20px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
       }
       h1 {
-        color: white;
         text-align: center;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        color: white;
+        margin-bottom: 10px;
         font-size: 28px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
       }
       .subtitle {
         text-align: center;
         color: rgba(255, 255, 255, 0.9);
-        margin-bottom: 30px;
+        margin-bottom: 20px;
         font-size: 14px;
       }
-      .badge-container {
+      .badges {
         display: flex;
         justify-content: center;
         gap: 10px;
         flex-wrap: wrap;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
       }
       .badge {
-        padding: 5px 12px;
+        padding: 5px 15px;
         border-radius: 20px;
+        color: white;
         font-size: 12px;
         font-weight: bold;
-        color: white;
       }
-      .badge-1 {
+      .badge1 {
         background: #4caf50;
       }
-      .badge-2 {
+      .badge2 {
         background: #2196f3;
       }
-      .badge-3 {
+      .badge3 {
         background: #ff9800;
       }
-      .badge-4 {
+      .badge4 {
         background: #9c27b0;
       }
-      .badge-5 {
+      .badge5 {
         background: #f44336;
       }
-      .container {
+
+      .main-panel {
         display: flex;
         gap: 20px;
         flex-wrap: wrap;
       }
-      .upload-area,
-      .results-area {
+      .left-panel,
+      .right-panel {
         flex: 1;
         min-width: 350px;
         background: white;
-        padding: 20px;
         border-radius: 15px;
+        padding: 20px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       }
-      .upload-area h3,
-      .results-area h3 {
+      .left-panel h3,
+      .right-panel h3 {
         color: #333;
-        margin-top: 0;
         border-bottom: 2px solid #667eea;
         padding-bottom: 10px;
+        margin-bottom: 15px;
+      }
+      .file-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 15px;
+      }
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 15px 0;
+        font-size: 14px;
       }
       canvas {
+        width: 100%;
         border: 2px solid #ddd;
-        max-width: 100%;
         border-radius: 8px;
-        cursor: crosshair;
+        background: #f5f5f5;
+        margin: 10px 0;
       }
       button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 12px 24px;
+        padding: 10px 20px;
         border: none;
         border-radius: 8px;
         cursor: pointer;
-        margin: 10px 5px;
         font-size: 14px;
+        font-weight: bold;
+        margin: 5px;
         transition: transform 0.2s;
       }
       button:hover {
         transform: translateY(-2px);
       }
-      button:active {
-        transform: translateY(0);
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
       }
-      .btn-clear {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      .btn-success {
+        background: linear-gradient(135deg, #11998e, #38ef7d);
+        color: white;
       }
-      .btn-compare {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      .btn-danger {
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        color: white;
       }
-      .model-select {
-        margin: 15px 0;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 14px;
-        width: 100%;
+      .btn-warning {
+        background: linear-gradient(135deg, #fa709a, #fee140);
+        color: white;
+      }
+      .btn-info {
+        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        color: white;
+      }
+      .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 15px;
       }
       .result-item {
-        border-left: 4px solid #4caf50;
-        padding: 10px;
-        margin: 10px 0;
         background: #f9f9f9;
+        border-left: 4px solid #4caf50;
+        padding: 12px;
+        margin: 10px 0;
         border-radius: 8px;
       }
-      .confidence-high {
-        color: #4caf50;
+      .detected-text {
+        font-size: 20px;
         font-weight: bold;
-        font-size: 18px;
+        font-family: monospace;
+        color: #333;
+        margin-bottom: 8px;
+      }
+      .confidence-high {
+        background: #e8f5e9;
+        color: #4caf50;
+        padding: 5px 12px;
+        border-radius: 20px;
+        display: inline-block;
+        font-weight: bold;
       }
       .confidence-mid {
+        background: #fff3e0;
         color: #ff9800;
+        padding: 5px 12px;
+        border-radius: 20px;
+        display: inline-block;
         font-weight: bold;
-        font-size: 18px;
       }
       .confidence-low {
+        background: #ffebee;
         color: #f44336;
+        padding: 5px 12px;
+        border-radius: 20px;
+        display: inline-block;
         font-weight: bold;
-        font-size: 18px;
       }
       .stats {
         background: #e3f2fd;
@@ -143,32 +190,35 @@
         border-radius: 8px;
         margin-top: 20px;
       }
-      .comparison-table {
+      table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 20px;
         font-size: 12px;
       }
-      .comparison-table th,
-      .comparison-table td {
+      th,
+      td {
         border: 1px solid #ddd;
-        padding: 10px;
+        padding: 8px;
         text-align: left;
-        vertical-align: top;
       }
-      .comparison-table th {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      th {
+        background: linear-gradient(135deg, #667eea, #764ba2);
         color: white;
-        font-weight: bold;
       }
-      .comparison-table tr:nth-child(even) {
+      tr:nth-child(even) {
         background: #f9f9f9;
+      }
+      .winner {
+        background: linear-gradient(135deg, #4caf50, #45a049);
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
       }
       .loading {
         display: none;
         text-align: center;
         padding: 20px;
-        color: #667eea;
       }
       .spinner {
         border: 3px solid #f3f3f3;
@@ -187,95 +237,144 @@
           transform: rotate(360deg);
         }
       }
-      .architecture-detail {
-        font-size: 11px;
-        color: #666;
-        margin-top: 5px;
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
       }
-      .winner {
-        background: linear-gradient(135deg, #4caf50, #45a049);
-        color: white;
+      .modal-content {
+        background: white;
+        margin: 50px auto;
+        padding: 20px;
+        width: 80%;
+        max-width: 700px;
+        border-radius: 15px;
+        max-height: 80%;
+        overflow: auto;
+      }
+      .close {
+        float: right;
+        font-size: 28px;
+        cursor: pointer;
+      }
+      .history-item {
+        border-bottom: 1px solid #ddd;
         padding: 10px;
-        border-radius: 8px;
-        margin-top: 15px;
-      }
-      .detected-text {
-        font-size: 24px;
-        font-weight: bold;
-        color: #333;
-        margin: 10px 0;
+        margin: 5px 0;
       }
     </style>
   </head>
   <body>
-    <h1>📷 Сравнение 5 архитектур OCR для городских вывесок</h1>
-    <div class="badge-container">
-      <span class="badge badge-1"> EasyOCR (CNN+RNN+Attention)</span>
-      <span class="badge badge-2"> CRNN (CNN+RNN+CTC)</span>
-      <span class="badge badge-3"> Transformer (ViT+Attention)</span>
-      <span class="badge badge-4"> Гибридная (CNN+Transformer)</span>
-      <span class="badge badge-5"> Ансамбль (5 моделей)</span>
-    </div>
-    <div class="subtitle">
-      Задание: Распознавание текста на вывесках, табличках и указателях
-      городской среды
-    </div>
-
     <div class="container">
-      <div class="upload-area">
-        <h3>Шаг 1: Загрузите изображение</h3>
-        <input type="file" id="imageInput" accept="image/jpeg,image/png" />
-
-        <h3>Шаг 2: Выберите архитектуру</h3>
-        <select id="modelSelect" class="model-select">
-          <option value="arch1">
-            Архитектура 1: EasyOCR (CNN+RNN+Attention+BiLSTM)
-          </option>
-          <option value="arch2">
-            Архитектура 2: CRNN (CNN+RNN+CTC) - Классическая
-          </option>
-          <option value="arch3">
-            Архитектура 3: Transformer (ViT+Attention) - Современная
-          </option>
-          <option value="arch4">
-            Архитектура 4: Гибридная (CNN+Transformer+CTC)
-          </option>
-          <option value="arch5">
-            Архитектура 5: Ансамбль (Комитет из 5 моделей)
-          </option>
-        </select>
-
-        <canvas id="canvas" width="600" height="400"></canvas>
-
-        <div>
-          <button onclick="clearCanvas()" class="btn-clear">Очистить</button>
-          <button onclick="analyzeImage()">🔍 Распознать текст</button>
-          <button onclick="compareAllModels()" class="btn-compare">
-            Сравнить ВСЕ 5 архитектур
-          </button>
-        </div>
-
-        <div class="loading" id="loading">
-          <div class="spinner"></div>
-          <p>Обработка изображения... Это может занять 10-30 секунд</p>
-        </div>
+      <h1>📷 Сравнение 5 архитектур нейронных сетей для OCR</h1>
+      <div class="subtitle">
+        Распознавание текста на вывесках, табличках и указателях городской среды
       </div>
 
-      <div class="results-area">
-        <h3>Результаты распознавания</h3>
-        <div id="results">
-          <p style="color: #999">
-            Загрузите изображение вывески и нажмите "Распознать текст" или
-            "Сравнить ВСЕ 5 архитектур"
-          </p>
+      <div class="badges">
+        <span class="badge badge1"
+          >🔵 1. EasyOCR (CNN+RNN+Attention+BiLSTM)</span
+        >
+        <span class="badge badge2">🟢 2. CRNN (CNN+RNN+CTC)</span>
+        <span class="badge badge3">🟣 3. Transformer (ViT+Attention)</span>
+        <span class="badge badge4">🟠 4. Гибридная (CNN+Transformer+CTC)</span>
+        <span class="badge badge5">🔴 5. Ансамбль (Комитет из 5 моделей)</span>
+      </div>
+
+      <div class="main-panel">
+        <div class="left-panel">
+          <h3>📤 Шаг 1: Загрузите изображение</h3>
+          <input
+            type="file"
+            id="imageInput"
+            class="file-input"
+            accept="image/*"
+          />
+
+          <h3>
+            🧠 Шаг 2: Выберите архитектуру (только для одиночного распознавания)
+          </h3>
+          <select id="modelSelect">
+            <option value="arch1">
+              🔵 Архитектура 1: EasyOCR - CNN+RNN+Attention+BiLSTM
+            </option>
+            <option value="arch2">
+              🟢 Архитектура 2: CRNN - CNN+RNN+CTC (классическая)
+            </option>
+            <option value="arch3">
+              🟣 Архитектура 3: Transformer - ViT+Attention (современная)
+            </option>
+            <option value="arch4">
+              🟠 Архитектура 4: Гибридная - CNN+Transformer+CTC
+            </option>
+            <option value="arch5">
+              🔴 Архитектура 5: Ансамбль - комитет из 5 моделей
+            </option>
+          </select>
+
+          <canvas
+            id="canvas"
+            width="600"
+            height="300"
+            style="width: 100%; height: auto"
+          ></canvas>
+
+          <div class="button-group">
+            <button onclick="clearCanvas()" class="btn-danger">
+              🗑 Очистить
+            </button>
+            <button onclick="analyzeImage()" class="btn-primary">
+              🔍 Распознать текст
+            </button>
+            <button onclick="compareAllModels()" class="btn-info">
+              ⚡ Сравнить ВСЕ 5 архитектур
+            </button>
+          </div>
+          <div class="button-group">
+            <button onclick="exportToCSV()" class="btn-success">
+              📊 Скачать CSV-отчёт
+            </button>
+            <button onclick="showHistory()" class="btn-warning">
+              📜 Показать историю
+            </button>
+            <button onclick="clearHistory()" class="btn-danger">
+              🗑 Очистить историю
+            </button>
+          </div>
+
+          <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>⏳ Обработка изображения...</p>
+          </div>
         </div>
-        <div class="stats" id="stats"></div>
+
+        <div class="right-panel">
+          <h3>📊 Результаты распознавания</h3>
+          <div id="results">
+            <p style="color: #999">
+              Загрузите изображение и нажмите кнопку для распознавания
+            </p>
+          </div>
+          <div id="stats" class="stats"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="historyModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h3>📜 История распознаваний</h3>
+        <div id="historyList"></div>
       </div>
     </div>
 
     <script>
       let currentImage = null;
-      let currentImageData = null;
       const canvas = document.getElementById("canvas");
       const ctx = canvas.getContext("2d");
 
@@ -292,7 +391,6 @@
                 canvas.height = img.height;
                 ctx.drawImage(img, 0, 0);
                 currentImage = img;
-                currentImageData = event.target.result;
               };
               img.src = event.target.result;
             };
@@ -303,6 +401,9 @@
       function clearCanvas() {
         if (currentImage) {
           ctx.drawImage(currentImage, 0, 0);
+        } else {
+          ctx.fillStyle = "#f5f5f5";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
       }
 
@@ -312,118 +413,13 @@
         return "confidence-low";
       }
 
-      function displaySingleResult(result) {
-        const resultsDiv = document.getElementById("results");
-        const statsDiv = document.getElementById("stats");
-
-        console.log("Single result:", result);
-
-        if (result.error) {
-          resultsDiv.innerHTML = `<p style="color:red;"> Ошибка: ${result.error}</p>`;
-          statsDiv.innerHTML = "";
-          return;
-        }
-
-        if (result.detections && result.detections.length > 0) {
-          let html = `<h4> Результат распознавания:</h4>`;
-          for (let i = 0; i < result.detections.length; i++) {
-            const det = result.detections[i];
-            const confClass = getConfidenceClass(det.confidence);
-            html += `
-                        <div class="result-item">
-                            <div class="detected-text"> "${det.text}"</div>
-                            <span class="${confClass}"> Уверенность: ${(det.confidence * 100).toFixed(1)}%</span>
-                            <div class="architecture-detail">
-                                 Архитектура: ${det.architecture || result.architecture_desc || "—"}<br>
-                                 Сильные стороны: ${det.strength || "—"}<br>
-                                 Слабые стороны: ${det.weakness || "—"}
-                            </div>
-                        </div>
-                    `;
-          }
-          resultsDiv.innerHTML = html;
-
-          statsDiv.innerHTML = `
-                    <strong> Статистика:</strong><br>
-                    ⏱ Время обработки: ${result.processing_time} мс<br>
-                     Найдено слов: ${result.detections.length}<br>
-                     Изображение: ${result.image}
-                `;
-        } else {
-          resultsDiv.innerHTML =
-            "<p> Текст не найден. Попробуйте другое изображение с чёткими вывесками.</p>";
-          statsDiv.innerHTML = "";
-        }
-      }
-
-      function displayComparisonResult(result) {
-        const resultsDiv = document.getElementById("results");
-        const statsDiv = document.getElementById("stats");
-
-        console.log("Comparison result:", result);
-
-        if (result.error) {
-          resultsDiv.innerHTML = `<p style="color:red;">❌ Ошибка: ${result.error}</p>`;
-          statsDiv.innerHTML = "";
-          return;
-        }
-
-        if (result.comparisons && result.comparisons.length > 0) {
-          let html = "<h4> СРАВНЕНИЕ ВСЕХ 5 АРХИТЕКТУР:</h4>";
-          html += '<table class="comparison-table">';
-          html += `<tr>
-                            <th>Архитектура</th>
-                            <th>Тип</th>
-                            <th>Распознанный текст</th>
-                            <th>Уверенность</th>
-                            <th>Время (мс)</th>
-                            <th>Особенность</th>
-                         </tr>`;
-
-          for (let comp of result.comparisons) {
-            const texts =
-              comp.detections.map((d) => `"${d.text}"`).join(", ") || "—";
-            const confClass = getConfidenceClass(comp.avg_confidence);
-            html += `<tr>
-                                <td><strong>${comp.model_name}</strong></td>
-                                <td style="font-size: 11px;">${comp.type}</td>
-                                <td><strong>${texts}</strong></td>
-                                <td class="${confClass}">${(comp.avg_confidence * 100).toFixed(1)}%</td>
-                                <td>${comp.processing_time}</td>
-                                <td style="font-size: 11px;">${comp.strength || "—"}</td>
-                             </tr>`;
-          }
-          html += "</table>";
-
-          if (result.fastest_model) {
-            html += `<div class="winner">
-                                <strong> РЕЗУЛЬТАТЫ СРАВНЕНИЯ:</strong><br>
-                                 Самая быстрая: ${result.fastest_model} (${result.fastest_time} мс)<br>
-                                 Самая точная: ${result.most_accurate_model} (${(result.most_accuracy * 100).toFixed(1)}%)<br>
-                                 ${result.recommendation}
-                             </div>`;
-          }
-
-          resultsDiv.innerHTML = html;
-          statsDiv.innerHTML =
-            "<strong> 5 архитектур успешно сравнены!</strong><br>Каждая архитектура имеет свои преимущества.";
-        } else {
-          resultsDiv.innerHTML = "<p> Нет данных для сравнения</p>";
-          statsDiv.innerHTML = "";
-        }
-      }
-
       async function analyzeImage() {
         if (!currentImage) {
-          alert("Пожалуйста, сначала загрузите изображение!");
+          alert("Сначала загрузите изображение!");
           return;
         }
 
         document.getElementById("loading").style.display = "block";
-        document.getElementById("results").innerHTML =
-          "<p> Распознавание... пожалуйста, подождите</p>";
-        document.getElementById("stats").innerHTML = "";
-
         const model = document.getElementById("modelSelect").value;
         const imageData = canvas.toDataURL();
 
@@ -434,27 +430,46 @@
             body: JSON.stringify({ image: imageData, model: model }),
           });
           const result = await response.json();
-          displaySingleResult(result);
-        } catch (error) {
-          console.error("Ошибка:", error);
-          document.getElementById("results").innerHTML =
-            '<p style="color:red;"> Ошибка при распознавании. Проверьте консоль.</p>';
-        }
 
+          if (result.detections && result.detections.length > 0) {
+            let html = "<h4>✅ Результат:</h4>";
+            for (let det of result.detections) {
+              const confClass = getConfidenceClass(det.confidence);
+              html += `
+                            <div class="result-item">
+                                <div class="detected-text">📝 "${det.text}"</div>
+                                <div><span class="${confClass}">🎯 ${(det.confidence * 100).toFixed(1)}%</span></div>
+                                <div style="font-size:11px; color:#666; margin-top:5px">
+                                    ✅ ${det.strength}<br>
+                                    ⚠ ${det.weakness}
+                                </div>
+                            </div>
+                        `;
+            }
+            document.getElementById("results").innerHTML = html;
+            document.getElementById("stats").innerHTML = `
+                        <strong>📊 Статистика:</strong><br>
+                        ⏱ Время: ${result.processing_time} мс<br>
+                        📝 Слов найдено: ${result.detections.length}
+                    `;
+          } else {
+            document.getElementById("results").innerHTML =
+              "<p>❌ Текст не найден</p>";
+          }
+        } catch (error) {
+          document.getElementById("results").innerHTML =
+            '<p style="color:red">❌ Ошибка</p>';
+        }
         document.getElementById("loading").style.display = "none";
       }
 
       async function compareAllModels() {
         if (!currentImage) {
-          alert("Пожалуйста, сначала загрузите изображение!");
+          alert("Сначала загрузите изображение!");
           return;
         }
 
         document.getElementById("loading").style.display = "block";
-        document.getElementById("results").innerHTML =
-          "<p>⏳ Сравнение всех 5 архитектур... Это может занять 20-40 секунд</p>";
-        document.getElementById("stats").innerHTML = "";
-
         const imageData = canvas.toDataURL();
 
         try {
@@ -464,14 +479,96 @@
             body: JSON.stringify({ image: imageData }),
           });
           const result = await response.json();
-          displayComparisonResult(result);
-        } catch (error) {
-          console.error("Ошибка:", error);
-          document.getElementById("results").innerHTML =
-            '<p style="color:red;"> Ошибка при сравнении моделей</p>';
-        }
 
+          if (result.comparisons) {
+            let html = "<h4>⚡ СРАВНЕНИЕ ВСЕХ 5 АРХИТЕКТУР:</h4>";
+            html += "<table>";
+            html +=
+              "<tr><th>Архитектура</th><th>Текст</th><th>Уверенность</th><th>Время (мс)</th></tr>";
+
+            for (let comp of result.comparisons) {
+              const texts = comp.detections
+                .map((d) => `"${d.text}"`)
+                .join(", ");
+              const confClass = getConfidenceClass(comp.avg_confidence);
+              html += `<tr>
+                            <td><strong>${comp.model_name}</strong><br><small>${comp.type}</small></td>
+                            <td>${texts || "—"}</td>
+                            <td class="${confClass}">${(comp.avg_confidence * 100).toFixed(1)}%</td>
+                            <td>${comp.processing_time}</td>
+                        </tr>`;
+            }
+            html += "</table>";
+
+            if (result.fastest_model) {
+              html += `<div class="winner">
+                            🏆 <strong>ИТОГИ:</strong><br>
+                            ⚡ Самая быстрая: ${result.fastest_model} (${result.fastest_time} мс)<br>
+                            🎯 Самая точная: ${result.most_accurate_model} (${(result.most_accuracy * 100).toFixed(1)}%)<br>
+                            💡 ${result.recommendation}
+                        </div>`;
+            }
+
+            document.getElementById("results").innerHTML = html;
+            document.getElementById("stats").innerHTML =
+              "<strong>✅ 5 архитектур сравнены успешно!</strong>";
+          }
+        } catch (error) {
+          document.getElementById("results").innerHTML =
+            '<p style="color:red">❌ Ошибка сравнения</p>';
+        }
         document.getElementById("loading").style.display = "none";
+      }
+
+      async function exportToCSV() {
+        try {
+          const response = await fetch("/export_csv");
+          const result = await response.json();
+          if (result.success) {
+            alert(`✅ ${result.message}`);
+          } else {
+            alert("❌ Нет данных для экспорта");
+          }
+        } catch (error) {
+          alert("❌ Ошибка экспорта");
+        }
+      }
+
+      async function showHistory() {
+        try {
+          const response = await fetch("/get_history");
+          const result = await response.json();
+          let html = "";
+          if (result.history && result.history.length > 0) {
+            html = `<p>📊 Всего: ${result.count} записей</p>`;
+            for (let item of result.history.slice(-10).reverse()) {
+              const date = new Date(item.timestamp).toLocaleString();
+              const detections = item.detections || [];
+              html += `<div class="history-item">
+                            <strong>📅 ${date}</strong><br>
+                            📝 ${detections.map((d) => `"${d.text}" (${(d.confidence * 100).toFixed(1)}%)`).join(", ")}<br>
+                            ⏱ ${item.processing_time} мс
+                        </div>`;
+            }
+          } else {
+            html = "<p>📭 История пуста</p>";
+          }
+          document.getElementById("historyList").innerHTML = html;
+          document.getElementById("historyModal").style.display = "block";
+        } catch (error) {
+          alert("Ошибка загрузки истории");
+        }
+      }
+
+      async function clearHistory() {
+        if (confirm("Очистить историю?")) {
+          await fetch("/clear_history", { method: "POST" });
+          alert("✅ История очищена");
+        }
+      }
+
+      function closeModal() {
+        document.getElementById("historyModal").style.display = "none";
       }
     </script>
   </body>
